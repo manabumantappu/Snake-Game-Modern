@@ -9,6 +9,15 @@ const soundStart = new Audio("sounds/start.wav");
 
 let soundEnabled = true;
 
+let audioUnlocked = false;
+
+function unlockAudioOnce() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  soundClick.currentTime = 0;
+  soundClick.play().catch(() => {});
+}
+
 function playSound(sound) {
   if (!soundEnabled) return;
   sound.currentTime = 0;
@@ -161,15 +170,36 @@ function restartInterval() {
 
 // ================= CONTROL =================
 document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft" && dir !== "RIGHT") dir = "LEFT";
-  if (e.key === "ArrowUp" && dir !== "DOWN") dir = "UP";
-  if (e.key === "ArrowRight" && dir !== "LEFT") dir = "RIGHT";
-  if (e.key === "ArrowDown" && dir !== "UP") dir = "DOWN";
+  if (e.repeat) return; // cegah spam
+
+  let changed = false;
+
+  if (e.key === "ArrowLeft" && dir !== "RIGHT") {
+    dir = "LEFT";
+    changed = true;
+  }
+  if (e.key === "ArrowUp" && dir !== "DOWN") {
+    dir = "UP";
+    changed = true;
+  }
+  if (e.key === "ArrowRight" && dir !== "LEFT") {
+    dir = "RIGHT";
+    changed = true;
+  }
+  if (e.key === "ArrowDown" && dir !== "UP") {
+    dir = "DOWN";
+    changed = true;
+  }
+
+  if (changed) {
+    soundClick.currentTime = 0;
+    soundClick.play().catch(() => {});
+  }
 });
 
 document.getElementById("startBtn").onclick = () => {
-  unlockAudio();              // 🔑 INI KUNCINYA
-  playSound(soundStart);      // tes bunyi
+  unlockAudioOnce();       // 🔑 kunci utama
+  playSound(soundStart);
   if (isRunning) return;
   initGame();
   gameInterval = setInterval(draw, speed);
@@ -203,24 +233,32 @@ canvas.addEventListener("touchend", (e) => {
   const dx = e.changedTouches[0].clientX - startX;
   const dy = e.changedTouches[0].clientY - startY;
 
+  let changed = false;
+
   if (Math.abs(dx) > Math.abs(dy)) {
     if (dx > 0 && dir !== "LEFT") {
       dir = "RIGHT";
-      playSound(soundClick);
+      changed = true;
     } else if (dx < 0 && dir !== "RIGHT") {
       dir = "LEFT";
-      playSound(soundClick);
+      changed = true;
     }
   } else {
     if (dy > 0 && dir !== "UP") {
       dir = "DOWN";
-      playSound(soundClick);
+      changed = true;
     } else if (dy < 0 && dir !== "DOWN") {
       dir = "UP";
-      playSound(soundClick);
+      changed = true;
     }
   }
+
+  if (changed) {
+    soundClick.currentTime = 0;
+    soundClick.play().catch(() => {});
+  }
 });
+
 
   setTimeout(() => {
   playSound(soundEat);
