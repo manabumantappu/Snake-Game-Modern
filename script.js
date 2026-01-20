@@ -195,9 +195,12 @@ document.addEventListener("keydown", (e) => {
 });
 
 document.getElementById("startBtn").onclick = () => {
-  soundClick.play().catch(() => {}); // unlock audio
+  soundClick.play().catch(() => {});
   if (isRunning) return;
+
   initGame();
+  draw(); // ⬅️ WAJIB: gambar frame pertama
+
   gameInterval = setInterval(draw, speed);
   isRunning = true;
 };
@@ -205,6 +208,7 @@ document.getElementById("startBtn").onclick = () => {
 
 document.getElementById("restartBtn").onclick = () => {
   initGame();
+  draw(); // ⬅️ WAJIB
   gameInterval = setInterval(draw, speed);
   isRunning = true;
 };
