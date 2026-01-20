@@ -2,7 +2,10 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const box = 16;
-let snake, food, dir, score, level, speed, game;
+const gridCount = canvas.width / box;
+
+let snake, food, dir, score, level, speed;
+let gameInterval = null;
 let isPaused = false;
 let isRunning = false;
 
@@ -10,12 +13,13 @@ const scoreEl = document.getElementById("score");
 const levelEl = document.getElementById("level");
 const highScoreEl = document.getElementById("highScore");
 
-const highScoreKey = "snake_high_score";
+const HIGH_SCORE_KEY = "snake_high_score";
 
+// ================= INIT =================
 function initGame() {
-  snake = [{ x: 9 * box, y: 10 * box }];
+  snake = [{ x: 8 * box, y: 8 * box }];
+  dir = "RIGHT"; // ✅ WAJIB
   food = spawnFood();
-  dir = "RIGHT";
   score = 0;
   level = 1;
   speed = 150;
@@ -23,79 +27,60 @@ function initGame() {
 
   scoreEl.textContent = score;
   levelEl.textContent = level;
-  highScoreEl.textContent = localStorage.getItem(highScoreKey) || 0;
+  highScoreEl.textContent =
+    localStorage.getItem(HIGH_SCORE_KEY) || 0;
 
-  clearInterval(game);
+  clearInterval(gameInterval);
 }
 
+// ================= FOOD =================
 function spawnFood() {
-  let newFood;
+  let pos;
   do {
-    newFood = {
-      x: Math.floor(Math.random() * 20) * box,
-      y: Math.floor(Math.random() * 20) * box,
+    pos = {
+      x: Math.floor(Math.random() * gridCount) * box,
+      y: Math.floor(Math.random() * gridCount) * box,
     };
-  } while (collision(newFood, snake));
-  return newFood;
+  } while (snake && collision(pos, snake));
+  return pos;
 }
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft" && dir !== "RIGHT") dir = "LEFT";
-  if (e.key === "ArrowUp" && dir !== "DOWN") dir = "UP";
-  if (e.key === "ArrowRight" && dir !== "LEFT") dir = "RIGHT";
-  if (e.key === "ArrowDown" && dir !== "UP") dir = "DOWN";
-});
-
+// ================= DRAW =================
 function draw() {
   if (isPaused) return;
 
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // MOVE HEAD
+  let head = { ...snake[0] };
+  if (dir === "LEFT") head.x -= box;
+  if (dir === "UP") head.y -= box;
+  if (dir === "RIGHT") head.x += box;
+  if (dir === "DOWN") head.y += box;
 
-  for (let i = 0; i < snake.length; i++) {
-    ctx.fillStyle = i === 0 ? "#4caf50" : "#81c784";
-    ctx.fillRect(snake[i].x, snake[i].y, box, box);
+  // GAME OVER CHECK (SETELAH GERAK)
+  if (
+    head.x < 0 ||
+    head.y < 0 ||
+    head.x >= canvas.width ||
+    head.y >= canvas.height ||
+    collision(head, snake)
+  ) {
+    clearInterval(gameInterval);
+    isRunning = false;
+    saveHighScore();
+    alert("Game Over!");
+    return;
   }
 
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
-
-  let headX = snake[0].x;
-  let headY = snake[0].y;
-
-  if (dir === "LEFT") headX -= box;
-  if (dir === "UP") headY -= box;
-  if (dir === "RIGHT") headX += box;
-  if (dir === "DOWN") headY += box;
-
-// Game Over
-if (
-  headX < 0 ||
-  headY < 0 ||
-  headX >= canvas.width ||
-  headY >= canvas.height ||
-  collision({ x: headX, y: headY }, snake)
-) {
-  clearInterval(game);   // ⬅️ DI SINI
-  isRunning = false;     // ⬅️ TEMPEL BARIS INI
-  alert("Game Over!");
-  saveHighScore();
-  return;
-}
-
-
-  let newHead = { x: headX, y: headY };
-
-  if (headX === food.x && headY === food.y) {
+  // EAT FOOD
+  if (head.x === food.x && head.y === food.y) {
     score++;
     scoreEl.textContent = score;
 
     if (score % 5 === 0) {
       level++;
       levelEl.textContent = level;
-      speed = Math.max(50, speed - 15);
-      clearInterval(game);
-      game = setInterval(draw, speed);
+      speed = Math.max(60, speed - 15);
+      restartInterval();
     }
 
     food = spawnFood();
@@ -103,33 +88,60 @@ if (
     snake.pop();
   }
 
-  snake.unshift(newHead);
+  snake.unshift(head);
+
+  // DRAW CANVAS
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // DRAW SNAKE
+  snake.forEach((seg, i) => {
+    ctx.fillStyle = i === 0 ? "#4caf50" : "#81c784";
+    ctx.fillRect(seg.x, seg.y, box, box);
+  });
+
+  // DRAW FOOD
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
 }
 
-function collision(head, array) {
-  return array.some(
-    (seg) => head.x === seg.x && head.y === seg.y
+// ================= UTIL =================
+function collision(head, body) {
+  return body.some(
+    (seg) => seg.x === head.x && seg.y === head.y
   );
 }
 
 function saveHighScore() {
-  const highScore = localStorage.getItem(highScoreKey) || 0;
-  if (score > highScore) {
-    localStorage.setItem(highScoreKey, score);
+  const high = localStorage.getItem(HIGH_SCORE_KEY) || 0;
+  if (score > high) {
+    localStorage.setItem(HIGH_SCORE_KEY, score);
   }
 }
+
+function restartInterval() {
+  clearInterval(gameInterval);
+  gameInterval = setInterval(draw, speed);
+}
+
+// ================= CONTROL =================
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft" && dir !== "RIGHT") dir = "LEFT";
+  if (e.key === "ArrowUp" && dir !== "DOWN") dir = "UP";
+  if (e.key === "ArrowRight" && dir !== "LEFT") dir = "RIGHT";
+  if (e.key === "ArrowDown" && dir !== "UP") dir = "DOWN";
+});
 
 document.getElementById("startBtn").onclick = () => {
   if (isRunning) return;
   initGame();
-  game = setInterval(draw, speed);
+  gameInterval = setInterval(draw, speed);
   isRunning = true;
 };
 
 document.getElementById("restartBtn").onclick = () => {
-  clearInterval(game);
   initGame();
-  game = setInterval(draw, speed);
+  gameInterval = setInterval(draw, speed);
   isRunning = true;
 };
 
@@ -137,27 +149,28 @@ document.getElementById("pauseBtn").onclick = () => {
   isPaused = !isPaused;
 };
 
+// ================= THEME =================
 document.getElementById("themeToggle").onclick = () => {
   document.body.classList.toggle("dark");
 };
 
-// === TOUCH CONTROL (SWIPE) ===
+// ================= TOUCH =================
 let startX, startY;
-
-canvas.addEventListener("touchstart", e => {
+canvas.addEventListener("touchstart", (e) => {
   startX = e.touches[0].clientX;
   startY = e.touches[0].clientY;
 });
 
-canvas.addEventListener("touchend", e => {
+canvas.addEventListener("touchend", (e) => {
   const dx = e.changedTouches[0].clientX - startX;
   const dy = e.changedTouches[0].clientY - startY;
 
   if (Math.abs(dx) > Math.abs(dy)) {
     if (dx > 0 && dir !== "LEFT") dir = "RIGHT";
-    if (dx < 0 && dir !== "RIGHT") dir = "LEFT";
+    else if (dx < 0 && dir !== "RIGHT") dir = "LEFT";
   } else {
     if (dy > 0 && dir !== "UP") dir = "DOWN";
-    if (dy < 0 && dir !== "DOWN") dir = "UP";
+    else if (dy < 0 && dir !== "DOWN") dir = "UP";
   }
 });
+
