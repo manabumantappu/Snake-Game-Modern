@@ -12,8 +12,10 @@ let soundEnabled = true;
 function playSound(sound) {
   if (!soundEnabled) return;
   sound.currentTime = 0;
-  sound.play();
+  sound.volume = 1; // pastikan tidak 0
+  sound.play().catch(e => console.log("Sound blocked:", e));
 }
+
 
 const box = 16;
 const gridCount = canvas.width / box;
@@ -28,6 +30,23 @@ const levelEl = document.getElementById("level");
 const highScoreEl = document.getElementById("highScore");
 
 const HIGH_SCORE_KEY = "snake_high_score";
+
+// ================= AUDIO CONTEXT UNLOCK =================
+let audioCtx = null;
+
+function unlockAudio() {
+  if (audioCtx) return;
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const buffer = audioCtx.createBuffer(1, 1, 22050);
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(audioCtx.destination);
+  source.start(0);
+
+  console.log("Audio unlocked");
+}
 
 // ================= INIT =================
 function initGame() {
@@ -149,12 +168,14 @@ document.addEventListener("keydown", (e) => {
 });
 
 document.getElementById("startBtn").onclick = () => {
-  playSound(soundStart);   // ⬅️ INI KUNCI AUDIO
+  unlockAudio();              // 🔑 INI KUNCINYA
+  playSound(soundStart);      // tes bunyi
   if (isRunning) return;
   initGame();
   gameInterval = setInterval(draw, speed);
   isRunning = true;
 };
+
 
 document.getElementById("restartBtn").onclick = () => {
   initGame();
@@ -189,5 +210,9 @@ canvas.addEventListener("touchend", (e) => {
     if (dy > 0 && dir !== "UP") dir = "DOWN";
     else if (dy < 0 && dir !== "DOWN") dir = "UP";
   }
+  setTimeout(() => {
+  playSound(soundEat);
+}, 1000);
+
 });
 
