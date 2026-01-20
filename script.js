@@ -75,6 +75,7 @@ function draw() {
   if (head.x === food.x && head.y === food.y) {
     score++;
     scoreEl.textContent = score;
+ soundEat.play();
 
     if (score % 5 === 0) {
       level++;
