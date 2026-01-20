@@ -1,6 +1,20 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+// ================= SOUND =================
+const soundEat = new Audio("sounds/eat.wav");
+const soundGameOver = new Audio("sounds/gameover.wav");
+const soundClick = new Audio("sounds/click.wav");
+const soundStart = new Audio("sounds/start.wav");
+
+let soundEnabled = true;
+
+function playSound(sound) {
+  if (!soundEnabled) return;
+  sound.currentTime = 0;
+  sound.play();
+}
+
 const box = 16;
 const gridCount = canvas.width / box;
 
@@ -67,15 +81,16 @@ function draw() {
     clearInterval(gameInterval);
     isRunning = false;
     saveHighScore();
+    playSound(soundGameOver);
     alert("Game Over!");
     return;
   }
 
   // EAT FOOD
   if (head.x === food.x && head.y === food.y) {
+     playSound(soundEat);
     score++;
     scoreEl.textContent = score;
- soundEat.play();
 
     if (score % 5 === 0) {
       level++;
