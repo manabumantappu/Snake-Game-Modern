@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake Game Modern</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+    <header>
+      <h1>🐍 Snake Game</h1>
+      <button id="themeToggle">🌙</button>
+    </header>
+
+    <div class="info">
+      <div>Score: <span id="score">0</span></div>
+      <div>Level: <span id="level">1</span></div>
+      <div>High Score: <span id="highScore">0</span></div>
+    </div>
+
+    <canvas id="gameCanvas" width="320" height="320"></canvas>
+
+    <div class="controls">
+      <button id="startBtn">Start</button>
+      <button id="pauseBtn">Pause</button>
+      <button id="restartBtn">Restart</button>
+    </div>
+
+    <p class="hint">Gunakan tombol panah atau swipe layar</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
