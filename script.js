@@ -5,6 +5,7 @@ const ctx = canvas.getContext("2d");
 const soundEat = new Audio("sounds/eat.wav");
 const soundGameOver = new Audio("sounds/gameover.wav");
 const soundClick = new Audio("sounds/click.wav");
+soundClick.volume = 0.5;
 const soundStart = new Audio("sounds/start.wav");
 
 let soundEnabled = true;
@@ -170,25 +171,21 @@ function restartInterval() {
 
 // ================= CONTROL =================
 document.addEventListener("keydown", (e) => {
-  if (e.repeat) return; // cegah spam
+  if (e.repeat) return;
 
   let changed = false;
 
   if (e.key === "ArrowLeft" && dir !== "RIGHT") {
-    dir = "LEFT";
-    changed = true;
+    dir = "LEFT"; changed = true;
   }
   if (e.key === "ArrowUp" && dir !== "DOWN") {
-    dir = "UP";
-    changed = true;
+    dir = "UP"; changed = true;
   }
   if (e.key === "ArrowRight" && dir !== "LEFT") {
-    dir = "RIGHT";
-    changed = true;
+    dir = "RIGHT"; changed = true;
   }
   if (e.key === "ArrowDown" && dir !== "UP") {
-    dir = "DOWN";
-    changed = true;
+    dir = "DOWN"; changed = true;
   }
 
   if (changed) {
@@ -198,8 +195,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 document.getElementById("startBtn").onclick = () => {
-  unlockAudioOnce();       // 🔑 kunci utama
-  playSound(soundStart);
+  soundClick.play().catch(() => {}); // unlock audio
   if (isRunning) return;
   initGame();
   gameInterval = setInterval(draw, speed);
