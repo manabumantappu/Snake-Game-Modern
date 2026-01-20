@@ -204,12 +204,24 @@ canvas.addEventListener("touchend", (e) => {
   const dy = e.changedTouches[0].clientY - startY;
 
   if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 0 && dir !== "LEFT") dir = "RIGHT";
-    else if (dx < 0 && dir !== "RIGHT") dir = "LEFT";
+    if (dx > 0 && dir !== "LEFT") {
+      dir = "RIGHT";
+      playSound(soundClick);
+    } else if (dx < 0 && dir !== "RIGHT") {
+      dir = "LEFT";
+      playSound(soundClick);
+    }
   } else {
-    if (dy > 0 && dir !== "UP") dir = "DOWN";
-    else if (dy < 0 && dir !== "DOWN") dir = "UP";
+    if (dy > 0 && dir !== "UP") {
+      dir = "DOWN";
+      playSound(soundClick);
+    } else if (dy < 0 && dir !== "DOWN") {
+      dir = "UP";
+      playSound(soundClick);
+    }
   }
+});
+
   setTimeout(() => {
   playSound(soundEat);
 }, 1000);
