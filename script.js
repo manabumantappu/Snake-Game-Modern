@@ -4,6 +4,7 @@ const ctx = canvas.getContext("2d");
 const box = 16;
 let snake, food, dir, score, level, speed, game;
 let isPaused = false;
+let isRunning = false;
 
 const scoreEl = document.getElementById("score");
 const levelEl = document.getElementById("level");
@@ -14,7 +15,7 @@ const highScoreKey = "snake_high_score";
 function initGame() {
   snake = [{ x: 9 * box, y: 10 * box }];
   food = spawnFood();
-  dir = null;
+  dir = "RIGHT";
   score = 0;
   level = 1;
   speed = 150;
@@ -28,10 +29,14 @@ function initGame() {
 }
 
 function spawnFood() {
-  return {
-    x: Math.floor(Math.random() * 20) * box,
-    y: Math.floor(Math.random() * 20) * box,
-  };
+  let newFood;
+  do {
+    newFood = {
+      x: Math.floor(Math.random() * 20) * box,
+      y: Math.floor(Math.random() * 20) * box,
+    };
+  } while (collision(newFood, snake));
+  return newFood;
 }
 
 document.addEventListener("keydown", (e) => {
@@ -63,19 +68,21 @@ function draw() {
   if (dir === "RIGHT") headX += box;
   if (dir === "DOWN") headY += box;
 
-  // Game Over
-  if (
-    headX < 0 ||
-    headY < 0 ||
-    headX >= canvas.width ||
-    headY >= canvas.height ||
-    collision({ x: headX, y: headY }, snake)
-  ) {
-    clearInterval(game);
-    alert("Game Over!");
-    saveHighScore();
-    return;
-  }
+// Game Over
+if (
+  headX < 0 ||
+  headY < 0 ||
+  headX >= canvas.width ||
+  headY >= canvas.height ||
+  collision({ x: headX, y: headY }, snake)
+) {
+  clearInterval(game);   // ⬅️ DI SINI
+  isRunning = false;     // ⬅️ TEMPEL BARIS INI
+  alert("Game Over!");
+  saveHighScore();
+  return;
+}
+
 
   let newHead = { x: headX, y: headY };
 
@@ -113,13 +120,17 @@ function saveHighScore() {
 }
 
 document.getElementById("startBtn").onclick = () => {
+  if (isRunning) return;
   initGame();
   game = setInterval(draw, speed);
+  isRunning = true;
 };
 
 document.getElementById("restartBtn").onclick = () => {
+  clearInterval(game);
   initGame();
   game = setInterval(draw, speed);
+  isRunning = true;
 };
 
 document.getElementById("pauseBtn").onclick = () => {
