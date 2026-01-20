@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Audio Test</title>
+</head>
+<body>
+
+<button id="btn">KLIK SAYA</button>
+
+<script>
+  const sound = new Audio("sounds/click.wav");
+  sound.volume = 1;
+
+  document.getElementById("btn").onclick = () => {
+    sound.currentTime = 0;
+    sound.play()
+      .then(() => alert("SOUND PLAYED"))
+      .catch(e => alert("ERROR: " + e));
+  };
+</script>
+
+</body>
+</html>
