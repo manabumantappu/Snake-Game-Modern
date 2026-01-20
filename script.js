@@ -100,20 +100,19 @@ function draw() {
   if (dir === "DOWN") head.y += box;
 
   // GAME OVER CHECK (SETELAH GERAK)
-  if (
-    head.x < 0 ||
-    head.y < 0 ||
-    head.x >= canvas.width ||
-    head.y >= canvas.height ||
-    collision(head, snake)
-  ) {
-    clearInterval(gameInterval);
-    isRunning = false;
-    saveHighScore();
-    playSound(soundGameOver);
-    alert("Game Over!");
-    return;
-  }
+if (
+  head.x < 0 ||
+  head.y < 0 ||
+  head.x >= canvas.width ||
+  head.y >= canvas.height ||
+  collision(head, snake.slice(1)) // ⬅️ INI KUNCINYA
+) {
+  clearInterval(gameInterval);
+  isRunning = false;
+  playSound(soundGameOver);
+  alert("Game Over!");
+  return;
+}
 
   // EAT FOOD
   if (head.x === food.x && head.y === food.y) {
@@ -151,7 +150,7 @@ function draw() {
 }
 
 // ================= UTIL =================
-function collision(head, body) {
+collision(head, snake.slice(1)) {
   return body.some(
     (seg) => seg.x === head.x && seg.y === head.y
   );
