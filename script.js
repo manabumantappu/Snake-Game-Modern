@@ -149,6 +149,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 document.getElementById("startBtn").onclick = () => {
+  playSound(soundStart);   // ⬅️ INI KUNCI AUDIO
   if (isRunning) return;
   initGame();
   gameInterval = setInterval(draw, speed);
