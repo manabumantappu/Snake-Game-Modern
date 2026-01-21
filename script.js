@@ -150,11 +150,13 @@ if (
 }
 
 // ================= UTIL =================
-collision(head, snake.slice(1)) {
+// ================= UTIL =================
+function collision(head, body) {
   return body.some(
     (seg) => seg.x === head.x && seg.y === head.y
   );
 }
+
 
 function saveHighScore() {
   const high = localStorage.getItem(HIGH_SCORE_KEY) || 0;
@@ -256,12 +258,10 @@ canvas.addEventListener("touchend", (e) => {
     soundClick.currentTime = 0;
     soundClick.play().catch(() => {});
   }
-});
-
-
-  setTimeout(() => {
+setTimeout(() => {
   playSound(soundEat);
 }, 1000);
 
 });
 
+ 
