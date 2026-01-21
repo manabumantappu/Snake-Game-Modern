@@ -164,21 +164,6 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
-  // === GAMBAR CANVAS (SETELAH LOGIKA) ===
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // food
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
-
-  // snake
-  snake.forEach((seg, i) => {
-    ctx.fillStyle = i === 0 ? "#4caf50" : "#81c784";
-    ctx.fillRect(seg.x, seg.y, box, box);
-  });
-}
-
 // ================= UTIL =================
 function saveHighScore() {
   const high = localStorage.getItem(HIGH_SCORE_KEY) || 0;
@@ -232,10 +217,12 @@ document.getElementById("startBtn").onclick = () => {
 
 document.getElementById("restartBtn").onclick = () => {
   initGame();
-  draw();
-  gameInterval = setInterval(draw, speed);
   isRunning = true;
+  lastTime = 0;
+  accumulator = 0;
+  requestAnimationFrame(gameLoop);
 };
+
 
 document.getElementById("pauseBtn").onclick = () => {
   isPaused = !isPaused;
