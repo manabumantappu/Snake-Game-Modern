@@ -260,6 +260,4 @@ canvas.addEventListener("touchend", (e) => {
     soundClick.play().catch(() => {});
   }
 
-});
-
  
