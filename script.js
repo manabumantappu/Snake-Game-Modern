@@ -84,14 +84,28 @@ function spawnFood() {
       x: Math.floor(Math.random() * gridCount) * box,
       y: Math.floor(Math.random() * gridCount) * box,
     };
-  } while (snake && collision(pos, snake));
+  } while (snake.some(seg => seg.x === pos.x && seg.y === pos.y));
   return pos;
 }
+
 
 // ================= DRAW =================
 function draw() {
   if (isPaused) return;
+ // DRAW CANVAS
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // DRAW SNAKE
+  snake.forEach((seg, i) => {
+    ctx.fillStyle = i === 0 ? "#4caf50" : "#81c784";
+    ctx.fillRect(seg.x, seg.y, box, box);
+  });
+
+  // DRAW FOOD
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
+}
   // MOVE HEAD
   let head = { ...snake[0] };
   if (dir === "LEFT") head.x -= box;
@@ -134,20 +148,7 @@ if (
 
   snake.unshift(head);
 
-  // DRAW CANVAS
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // DRAW SNAKE
-  snake.forEach((seg, i) => {
-    ctx.fillStyle = i === 0 ? "#4caf50" : "#81c784";
-    ctx.fillRect(seg.x, seg.y, box, box);
-  });
-
-  // DRAW FOOD
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
-}
+ 
 
 // ================= UTIL =================
 // ================= UTIL =================
@@ -258,9 +259,6 @@ canvas.addEventListener("touchend", (e) => {
     soundClick.currentTime = 0;
     soundClick.play().catch(() => {});
   }
-setTimeout(() => {
-  playSound(soundEat);
-}, 1000);
 
 });
 
