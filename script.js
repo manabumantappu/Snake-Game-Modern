@@ -208,15 +208,22 @@ document.getElementById("startBtn").onclick = () => {
   if (isRunning) return;
 
   initGame();
+
+  // 🔑 RENDER PERTAMA (WAJIB)
+  drawSmooth(1);
+
   isRunning = true;
   lastTime = 0;
   accumulator = 0;
-
   requestAnimationFrame(gameLoop);
 };
 
 document.getElementById("restartBtn").onclick = () => {
   initGame();
+
+  // 🔑 RENDER PERTAMA
+  drawSmooth(1);
+
   isRunning = true;
   lastTime = 0;
   accumulator = 0;
