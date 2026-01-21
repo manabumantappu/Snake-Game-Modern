@@ -73,28 +73,14 @@ function collision(head, body) {
 function draw() {
   if (isPaused) return;
 
-  // === DRAW BACKGROUND ===
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // === DRAW FOOD ===
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
-
-  // === DRAW SNAKE ===
-  snake.forEach((seg, i) => {
-    ctx.fillStyle = i === 0 ? "#4caf50" : "#81c784";
-    ctx.fillRect(seg.x, seg.y, box, box);
-  });
-
-  // === MOVE HEAD ===
+  // === HITUNG POSISI BARU ===
   let head = { ...snake[0] };
   if (dir === "LEFT") head.x -= box;
   if (dir === "UP") head.y -= box;
   if (dir === "RIGHT") head.x += box;
   if (dir === "DOWN") head.y += box;
 
-  // === GAME OVER CHECK ===
+  // === GAME OVER CHECK (SETELAH POSISI BARU) ===
   if (
     head.x < 0 ||
     head.y < 0 ||
@@ -105,12 +91,11 @@ function draw() {
     clearInterval(gameInterval);
     isRunning = false;
     soundGameOver.play().catch(() => {});
-    saveHighScore();
     alert("Game Over!");
     return;
   }
 
-  // === EAT FOOD ===
+  // === MAKAN MAKANAN ===
   if (head.x === food.x && head.y === food.y) {
     soundEat.play().catch(() => {});
     score++;
@@ -129,6 +114,20 @@ function draw() {
   }
 
   snake.unshift(head);
+
+  // === GAMBAR CANVAS (SETELAH LOGIKA) ===
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // food
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
+
+  // snake
+  snake.forEach((seg, i) => {
+    ctx.fillStyle = i === 0 ? "#4caf50" : "#81c784";
+    ctx.fillRect(seg.x, seg.y, box, box);
+  });
 }
 
 // ================= UTIL =================
