@@ -24,10 +24,10 @@ let food = null;
 let dir = "RIGHT";
 let score = 0;
 let level = 1;
-speed = 150;
-STEP = speed; // ⬅️ WAJIB
+let speed = 150;
+let  STEP = speed; // ⬅️ WAJIB
 console.log("STEP =", STEP);
-let gameInterval = null;
+
 let isPaused = false;
 let isRunning = false;
 
@@ -50,6 +50,7 @@ snake = [{
   score = 0;
   level = 1;
   speed = 150;
+  STEP = speed;
   isPaused = false;
 
   food = spawnFood();
@@ -59,7 +60,7 @@ snake = [{
   highScoreEl.textContent =
     localStorage.getItem(HIGH_SCORE_KEY) || 0;
 
-  clearInterval(gameInterval);
+ 
 }
 
 // ================= FOOD =================
@@ -179,10 +180,6 @@ function saveHighScore() {
   }
 }
 
-function restartInterval() {
-  clearInterval(gameInterval);
-  gameInterval = setInterval(draw, speed);
-}
 
 // ================= CONTROL (KEYBOARD) =================
 document.addEventListener("keydown", (e) => {
@@ -214,30 +211,27 @@ document.getElementById("startBtn").onclick = () => {
   soundStart.play().catch(() => {});
   if (isRunning) return;
 
-  initGame();
+ initGame();
 
-  updateLogic();   // ⬅️ WAJIB (GERAKKAN ULAR 1 KALI)
-  drawSmooth(1);   // ⬅️ GAMBAR HASILNYA
+updateLogic();
+drawSmooth(1);
 
-  isRunning = true;
-  lastTime = 0;
-  accumulator = 0;
-  requestAnimationFrame(gameLoop);
-};
+isRunning = true;
+requestAnimationFrame(gameLoop);
 
 
 document.getElementById("restartBtn").onclick = () => {
   initGame();
 
-  updateLogic();   // ⬅️ sama
-  drawSmooth(1);
-
   isRunning = true;
   lastTime = 0;
   accumulator = 0;
+
+  updateLogic();
+  drawSmooth(1);
+
   requestAnimationFrame(gameLoop);
 };
-
 
 document.getElementById("pauseBtn").onclick = () => {
   isPaused = !isPaused;
