@@ -18,7 +18,9 @@ const gridCount = canvas.width / box;
 // ================= SMOOTH MOVEMENT =================
 let lastTime = 0;
 let accumulator = 0;
-const STEP = 100; // ms, kecepatan logika snake
+
+speed = Math.max(60, speed - 15);
+let STEP = speed; // sinkron dengan speed game
 
 console.log("STEP =", STEP); // SEMENTARA
 
@@ -145,7 +147,7 @@ function drawSmooth(alpha) {
 
 //=== GAME LOOP SMOOTH SYSTEM ===
 function gameLoop(timestamp) {
-  if (!isRunning) return;
+  if (!isRunning || isPaused) return;
 
   if (!lastTime) lastTime = timestamp;
   const delta = timestamp - lastTime;
@@ -153,16 +155,15 @@ function gameLoop(timestamp) {
 
   accumulator += delta;
 
-  while (accumulator >= STEP) {
+  if (accumulator >= STEP) {
     updateLogic();
-    accumulator -= STEP;
+    accumulator = 0;
   }
 
-  const alpha = accumulator / STEP;
-  drawSmooth(alpha);
-
+  drawSmooth(accumulator / STEP);
   requestAnimationFrame(gameLoop);
 }
+
 
 // ================= UTIL =================
 function saveHighScore() {
