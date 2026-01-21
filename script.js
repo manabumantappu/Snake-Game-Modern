@@ -19,17 +19,14 @@ const gridCount = canvas.width / box;
 let lastTime = 0;
 let accumulator = 0;
 
-
-
-console.log("STEP =", STEP); // SEMENTARA
-
 let snake = [];
 let food = null;
 let dir = "RIGHT";
 let score = 0;
 let level = 1;
-let speed = 150;
-let STEP = speed;
+speed = 150;
+STEP = speed; // ⬅️ WAJIB
+console.log("STEP =", STEP);
 let gameInterval = null;
 let isPaused = false;
 let isRunning = false;
@@ -128,6 +125,7 @@ function drawSmooth(alpha) {
   }
 
   // Eat
+// Eat
 if (head.x === food.x && head.y === food.y) {
   soundEat.play().catch(() => {});
   score++;
@@ -137,11 +135,21 @@ if (head.x === food.x && head.y === food.y) {
     level++;
     levelEl.textContent = level;
     speed = Math.max(60, speed - 15);
-    STEP = speed; // ⬅️ sinkron
+    STEP = speed;
   }
 
   food = spawnFood();
+} else {
+  snake.pop();
 }
+
+snake.unshift({
+  x: head.x,
+  y: head.y,
+  prevX: snake[0].x,
+  prevY: snake[0].y
+});
+} 
 
 //=== GAME LOOP SMOOTH SYSTEM ===
 function gameLoop(timestamp) {
