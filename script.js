@@ -210,8 +210,8 @@ document.getElementById("startBtn").onclick = () => {
 
   initGame();
 
-  // 🔑 RENDER PERTAMA (WAJIB)
-  drawSmooth(1);
+  updateLogic();   // ⬅️ WAJIB (GERAKKAN ULAR 1 KALI)
+  drawSmooth(1);   // ⬅️ GAMBAR HASILNYA
 
   isRunning = true;
   lastTime = 0;
@@ -219,10 +219,11 @@ document.getElementById("startBtn").onclick = () => {
   requestAnimationFrame(gameLoop);
 };
 
+
 document.getElementById("restartBtn").onclick = () => {
   initGame();
 
-  // 🔑 RENDER PERTAMA
+  updateLogic();   // ⬅️ sama
   drawSmooth(1);
 
   isRunning = true;
