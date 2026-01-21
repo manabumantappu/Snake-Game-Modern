@@ -15,6 +15,13 @@ let soundEnabled = true;
 const box = 16;
 const gridCount = canvas.width / box;
 
+// ================= SMOOTH MOVEMENT =================
+let lastTime = 0;
+let accumulator = 0;
+const STEP = 100; // ms, kecepatan logika snake
+
+console.log("STEP =", STEP); // SEMENTARA
+
 let snake = [];
 let food = null;
 let dir = "RIGHT";
@@ -33,7 +40,13 @@ const HIGH_SCORE_KEY = "snake_high_score";
 
 // ================= INIT GAME =================
 function initGame() {
-  snake = [{ x: 8 * box, y: 8 * box }];
+snake = [{
+  x: 8 * box,
+  y: 8 * box,
+  prevX: 8 * box,
+  prevY: 8 * box
+}];
+
   dir = "RIGHT";
   score = 0;
   level = 1;
@@ -70,17 +83,34 @@ function collision(head, body) {
 }
 
 // ================= DRAW =================
-function draw() {
-  if (isPaused) return;
+function drawSmooth(alpha) {
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // food
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
+
+  // snake
+  snake.forEach((seg, i) => {
+    const x = seg.prevX + (seg.x - seg.prevX) * alpha;
+    const y = seg.prevY + (seg.y - seg.prevY) * alpha;
+
+    ctx.fillStyle = i === 0 ? "#4caf50" : "#81c784";
+    ctx.fillRect(x, y, box, box);
+  });
+}
 
   // === HITUNG POSISI BARU ===
+  function updateLogic() {
   let head = { ...snake[0] };
+
   if (dir === "LEFT") head.x -= box;
   if (dir === "UP") head.y -= box;
   if (dir === "RIGHT") head.x += box;
   if (dir === "DOWN") head.y += box;
 
-  // === GAME OVER CHECK (SETELAH POSISI BARU) ===
+  // Game over
   if (
     head.x < 0 ||
     head.y < 0 ||
@@ -95,25 +125,44 @@ function draw() {
     return;
   }
 
-  // === MAKAN MAKANAN ===
+  // Eat
   if (head.x === food.x && head.y === food.y) {
     soundEat.play().catch(() => {});
     score++;
     scoreEl.textContent = score;
-
-    if (score % 5 === 0) {
-      level++;
-      levelEl.textContent = level;
-      speed = Math.max(60, speed - 15);
-      restartInterval();
-    }
-
     food = spawnFood();
   } else {
     snake.pop();
   }
 
-  snake.unshift(head);
+  snake.unshift({
+    x: head.x,
+    y: head.y,
+    prevX: snake[0].x,
+    prevY: snake[0].y
+  });
+}
+
+//=== GAME LOOP SMOOTH SYSTEM ===
+function gameLoop(timestamp) {
+  if (!isRunning) return;
+
+  if (!lastTime) lastTime = timestamp;
+  const delta = timestamp - lastTime;
+  lastTime = timestamp;
+
+  accumulator += delta;
+
+  while (accumulator >= STEP) {
+    updateLogic();
+    accumulator -= STEP;
+  }
+
+  const alpha = accumulator / STEP;
+  drawSmooth(alpha);
+
+  requestAnimationFrame(gameLoop);
+}
 
   // === GAMBAR CANVAS (SETELAH LOGIKA) ===
   ctx.fillStyle = "#000";
@@ -174,9 +223,11 @@ document.getElementById("startBtn").onclick = () => {
   if (isRunning) return;
 
   initGame();
-  draw(); // gambar frame pertama
-  gameInterval = setInterval(draw, speed);
   isRunning = true;
+  lastTime = 0;
+  accumulator = 0;
+
+  requestAnimationFrame(gameLoop);
 };
 
 document.getElementById("restartBtn").onclick = () => {
